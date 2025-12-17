@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Penguin Classifier AI</title>
+<style>
+/* ----------------------- */
+/* FUENTES & RESET       */
+/* ----------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Orbitron:wght@500;900&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: "Montserrat", sans-serif;
+    overflow-x: hidden;
+    height: 100vh;
+    /* Fondo degradado polar */
+    background: radial-gradient(circle at 50% 90%, #1a3a5c, #020a12 80%);
+    color: white;
+}
+
+/* ----------------------- */
+/* EFECTOS ATMOSFÉRICOS  */
+/* ----------------------- */
+
+/* Aurora Boreal */
+.aurora {
+    position: fixed;
+    top: -20%;
+    left: 0;
+    width: 100%;
+    height: 70%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 179, 0.2), rgba(0, 153, 255, 0.2), transparent);
+    filter: blur(60px);
+    animation: aurora-move 15s infinite alternate ease-in-out;
+    z-index: -5;
+}
+
+@keyframes aurora-move {
+    0% { transform: translateX(-10%) skewX(-10deg); opacity: 0.4; }
+    100% { transform: translateX(10%) skewX(10deg); opacity: 0.8; }
+}
+
+/* Nieve cayendo (CSS Puro) */
+.snow {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    background-image: 
+        radial-gradient(4px 4px at 100px 50px, #fff, transparent), 
+        radial-gradient(6px 6px at 200px 150px, #fff, transparent), 
+        radial-gradient(3px 3px at 300px 250px, #fff, transparent);
+    background-size: 650px 650px;
+    animation: snow-anim 10s linear infinite;
+    opacity: 0.7;
+    z-index: -4;
+}
+.snow.layer2 {
+    background-size: 450px 450px;
+    animation: snow-anim 7s linear infinite;
+    opacity: 0.4;
+    filter: blur(2px);
+}
+
+@keyframes snow-anim {
+    from { transform: translateY(-650px); }
+    to { transform: translateY(650px); }
+}
+
+/* Montañas de hielo (Silueta) */
+.ice-mountains {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 250px;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 300' preserveAspectRatio='none'><path d='M0,300 L0,150 L200,50 L400,200 L600,80 L800,250 L1000,100 L1200,280 L1200,300 Z' fill='%230f2538' opacity='0.8'/></svg>");
+    background-size: cover;
+    z-index: -3;
+}
+
+/* ----------------------- */
+/* UI PRINCIPAL          */
+/* ----------------------- */
+.overlay {
+    text-align: center;
+    padding-top: 120px;
+    position: relative;
+    z-index: 10;
+}
+
+h1 {
+    font-family: "Orbitron", sans-serif;
+    font-size: 3.5rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(to bottom, #fff, #a2d9ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(0, 153, 255, 0.6);
+}
+
+h3 {
+    margin-top: 10px;
+    font-weight: 300;
+    color: #8ac4ff;
+    letter-spacing: 2px;
+}
+
+/* Formulario estilo "Cristal" */
+form {
+    width: 500px;
+    margin: 50px auto;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.05); /* Efecto cristal */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 40px rgba(0, 153, 255, 0.2);
+}
+
+input[type="url"] {
+    width: 100%;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #4a90e2;
+    color: white;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    text-align: center;
+    font-family: "Montserrat", sans-serif;
+}
+input::placeholder { color: #8ab4d6; }
+
+button {
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    padding: 15px 50px;
+    border: none;
+    border-radius: 50px;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0, 114, 255, 0.5);
+    transition: transform 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(0, 198, 255, 0.8);
+}
+
+.music-control button {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    margin-top: 20px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+<div class="snow"></div>
+<div class="snow layer2"></div>
+<div class="ice-mountains"></div>
+
+<div class="overlay">
+    <h1>PALMER PENGUINS</h1>
+    <h3>Sistema de Clasificación Biométrica con IA</h3>
+
+    <form action="{{url_for('inicio')}}" method="post">
+        <label style="display:block; margin-bottom:10px; color:#a2d9ff;">INGRESA URL DE LA IMAGEN</label>
+        <input type="url" name="img_url" placeholder="https://ejemplo.com/pinguino.jpg" required>
+        <button type="submit">ANALIZAR ESPECIE</button>
+    </form>
+
+    <div class="music-control">
+        <audio id="music" loop>
+            <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Kai_Engel/Chapter_One_-_Cold/Kai_Engel_-_05_-_Snowfall_Intro.mp3" type="audio/mpeg">
+        </audio>
+        <button onclick="
+            let m=document.getElementById('music'); 
+            if(m.paused){ m.play(); this.innerText='🔇 Silenciar Ambiente'; }
+            else{ m.pause(); this.innerText='❄️ Activar Ambiente'; }
+        ">❄️ Activar Ambiente</button>
+    </div>
+</div>
+
+</body>
+</html>
