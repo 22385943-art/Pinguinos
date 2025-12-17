@@ -4,3 +4,6 @@ cohere
 scikit-learn
 gunicorn
 onnxruntime
+pymongo
+numpy
+requests

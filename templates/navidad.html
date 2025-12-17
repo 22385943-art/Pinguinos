@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Felicitación Navideña - {{ nickname }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<style>
+    body {
+        margin: 0; padding: 0;
+        height: 100vh;
+        background: radial-gradient(circle, #8e0000 0%, #3e0000 100%);
+        color: white;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        font-family: 'Cinzel', serif;
+        overflow: hidden;
+    }
+
+    /* Tarjeta Física */
+    .card-container {
+        position: relative;
+        width: 500px;
+        background: #fffaf0; /* Color crema papel */
+        border: 10px solid #d4af37; /* Marco dorado */
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 0 60px rgba(0,0,0,0.7);
+        border-radius: 5px;
+        z-index: 10;
+    }
+
+    /* Adornos de esquina CSS */
+    .corner {
+        position: absolute; width: 50px; height: 50px;
+        border: 5px solid #c62828;
+    }
+    .tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+    .tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+    .bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+    .br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+    h1 {
+        font-family: 'Mountains of Christmas', cursive;
+        color: #c62828;
+        font-size: 3.5rem;
+        margin: 0;
+        text-shadow: 1px 1px 0 #d4af37;
+    }
+
+    .photo-frame {
+        width: 250px; height: 250px;
+        margin: 20px auto;
+        border-radius: 50%;
+        border: 6px solid #d4af37;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        position: relative;
+    }
+
+    .photo-frame img {
+        width: 100%; height: 100%; object-fit: cover;
+    }
+
+    .nickname-tag {
+        background: #c62828;
+        color: #fff;
+        padding: 5px 20px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-top: -30px;
+        position: relative;
+        z-index: 20;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        font-size: 1.2rem;
+    }
+
+    .message-area {
+        margin-top: 30px;
+    }
+
+    textarea {
+        width: 100%;
+        border: none;
+        background: transparent;
+        text-align: center;
+        font-family: 'Cinzel', serif;
+        font-size: 1.2rem;
+        color: #5d4037;
+        resize: none;
+        outline: none;
+    }
+
+    /* Botones de acción (No salen al imprimir) */
+    .actions {
+        margin-top: 30px;
+        display: flex; gap: 20px;
+    }
+    .btn {
+        padding: 10px 20px;
+        border: 1px solid rgba(255,255,255,0.3);
+        background: rgba(0,0,0,0.3);
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+    .btn:hover { background: white; color: #8e0000; }
+
+    /* Nieve CSS */
+    .snowflake { position: fixed; top: -10px; color: #fff; font-size: 1em; animation: fall linear infinite; z-index: 1; }
+    @keyframes fall { to { transform: translateY(105vh); } }
+
+    @media print {
+        body { background: none; }
+        .actions, .snowflake { display: none; }
+        .card-container { box-shadow: none; border-color: #d4af37 !important; -webkit-print-color-adjust: exact; }
+    }
+</style>
+</head>
+<body>
+
+    <div class="card-container">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+
+        <h1>Feliz Navidad</h1>
+        
+        <div class="photo-frame">
+            <img src="{{ img_url }}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg'">
+        </div>
+        
+        <div class="nickname-tag">✨ {{ nickname }} ✨</div>
+
+        <div class="message-area">
+            <textarea rows="3" placeholder="Escribe aquí tu dedicatoria...&#10;Desde la Antártida con cariño.">Enviado desde la Estación Polar&#10;Especie: {{ species }}</textarea>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn" onclick="window.print()">🖨️ IMPRIMIR / PDF</button>
+        <button class="btn" onclick="toggleMusic()">🎵 MÚSICA</button>
+        <button class="btn" onclick="window.close()">CERRAR</button>
+    </div>
+
+    <audio id="bgm" loop>
+        <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Kai_Engel/Chapter_One_-_Cold/Kai_Engel_-_05_-_Snowfall_Intro.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Generar Nieve
+        function createSnow() {
+            const snow = document.createElement('div');
+            snow.innerHTML = '❄';
+            snow.className = 'snowflake';
+            snow.style.left = Math.random() * 100 + 'vw';
+            snow.style.animationDuration = Math.random() * 3 + 2 + 's';
+            snow.style.opacity = Math.random();
+            snow.style.fontSize = Math.random() * 20 + 10 + 'px';
+            document.body.appendChild(snow);
+            setTimeout(() => snow.remove(), 5000);
+        }
+        setInterval(createSnow, 100);
+
+        function toggleMusic() {
+            const audio = document.getElementById('bgm');
+            if (audio.paused) audio.play();
+            else audio.pause();
+        }
+    </script>
+
+</body>
+</html>

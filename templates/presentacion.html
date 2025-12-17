@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificación de Pingüinos - Proyecto Final</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Rajdhani:wght@300;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+
+    <style>
+        /* --- ESTILOS PERSONALIZADOS --- */
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-yellow: #ffee00;
+            --bg-gradient: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+        }
+
+        .reveal { background: var(--bg-gradient); font-family: 'Rajdhani', sans-serif; color: #e0e0e0; }
+        
+        /* Tipografía */
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4 { 
+            font-family: 'Orbitron', sans-serif; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+        }
+        .reveal h1 { 
+            background: -webkit-linear-gradient(#eee, #333); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+        .reveal h3 { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+        .highlight { color: var(--neon-yellow); font-weight: bold; }
+        .sub-text { font-size: 0.6em; color: #aaa; font-family: 'Roboto Mono', monospace; }
+
+        /* Diagramas y Cajas */
+        .flow-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 30px; flex-wrap: wrap;}
+        .flow-box { 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid var(--neon-blue); 
+            padding: 15px; border-radius: 8px; 
+            font-size: 0.6em; width: 140px;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+        .flow-box:hover { transform: scale(1.1); background: rgba(0, 243, 255, 0.15); }
+        .flow-arrow { font-size: 1.5em; color: var(--neon-pink); animation: pulse 2s infinite; }
+
+        /* Código */
+        .reveal pre { 
+            box-shadow: 0 0 30px rgba(0,0,0,0.5); 
+            border-left: 5px solid var(--neon-pink);
+            background: #1e1e1e;
+        }
+
+        /* Autores */
+        .authors-box {
+            display: flex; justify-content: center; gap: 80px; margin-top: 60px;
+            border-top: 1px solid rgba(255,255,255,0.2); padding-top: 30px;
+        }
+        .author { text-align: center; }
+        .author-name { font-size: 1.5em; color: var(--neon-blue); font-weight: bold; letter-spacing: 1px; }
+
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+
+<div class="reveal">
+    <div class="slides">
+
+        <section>
+            <h1 class="r-fit-text">CLASIFICACIÓN</h1>
+            <h1 class="r-fit-text">DE PINGÜINOS</h1>
+            <h3 style="margin-top: 20px;">Inteligencia Artificial Híbrida & Big Data</h3>
+            
+            <div class="authors-box">
+                <div class="author">
+                    <div class="author-name">Javier Hernández Pérez</div>
+                </div>
+                <div class="author">
+                    <div class="author-name">Maria Parra Ramos</div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>El Desafío Técnico</h2>
+            <p>Teníamos un modelo <strong>Random Forest (ONNX)</strong> entrenado con datos numéricos (peso, aleta, pico...).</p>
+            <div class="fragment fade-in-then-semi-out" style="background: rgba(255,0,0,0.2); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                🚨 <strong>PROBLEMA:</strong> En el mundo real, los usuarios no suben un Excel con medidas. <br>Suben <strong>FOTOS</strong>.
+            </div>
+            <p class="fragment">¿Cómo conectamos una imagen (píxeles) con un modelo matemático?</p>
+        </section>
+
+        <section>
+            <h3>Arquitectura del Sistema</h3>
+            <p class="sub-text">Flujo de datos implementado en Python Flask</p>
+            
+            <div class="flow-container">
+                <div class="flow-box fragment" data-fragment-index="1">
+                    <div style="font-size:2em">📸</div>
+                    <strong>INPUT</strong><br>URL Imagen
+                </div>
+                <div class="flow-arrow fragment" data-fragment-index="2">➜</div>
+                <div class="flow-box fragment" data-fragment-index="2">
+                    <div style="font-size:2em">👁️</div>
+                    <strong>COHERE V2</strong><br>Visión Artificial
+                </div>
+                <div class="flow-arrow fragment" data-fragment-index="3">➜</div>
+                <div class="flow-box fragment" data-fragment-index="3">
+                    <div style="font-size:2em">🧠</div>
+                    <strong>ONNX</strong><br>Random Forest
+                </div>
+                <div class="flow-arrow fragment" data-fragment-index="4">➜</div>
+                <div class="flow-box fragment" data-fragment-index="4">
+                    <div style="font-size:2em">🌍</div>
+                    <strong>MONGO DB</strong><br>Persistencia
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3>El "Truco" Biológico</h3>
+            <p style="font-size: 0.8em;">Al principio, la IA inventaba medidas y fallaba. <br>Implementamos <span class="highlight">Inyección de Perfiles</span>.</p>
+            
+            <pre><code class="python" data-trim data-line-numbers="2,5-8">
+prompt = """
+TU TAREA NO ES ESTIMAR, ES CLASIFICAR.
+
+PASO 1: Identifica rasgos visuales (Anillo blanco = Adelie).
+PASO 2: Asigna valores ESTÁNDAR BIOLÓGICOS.
+
+SI ES ADELIE -> { "bill_length": 38.8, "mass": 3400 ... }
+"""
+            </code></pre>
+            <small class="fragment">✅ Resultado: Cohere clasifica visualmente, ONNX valida matemáticamente.</small>
+        </section>
+
+        <section>
+            <h3>Retos de Implementación</h3>
+            <ul>
+                <li class="fragment">
+                    <strong>Integración de Sistemas:</strong>
+                    <br><span class="sub-text">Orquestación en tiempo real entre Flask, la API de visión (Cohere), el modelo local (ONNX) y la base de datos en la nube.</span>
+                </li>
+                <li class="fragment" style="margin-top: 20px;">
+                    <strong>Geolocalización Procedural:</strong>
+                    <br><span class="sub-text">Calculamos coordenadas aleatorias dentro de rangos reales (Adelies en el sur, Gentoos en el norte) antes de guardar en Mongo.</span>
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Interfaz "Sci-Fi"</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="fragment flow-box" style="width: 100%;">
+                    <h4>🗺️ Mapa Realista</h4>
+                    <p>Mapa satelital conectado a la NASA. Permite ver dónde vive cada pingüino realmente, sin repeticiones ni errores visuales.</p>
+                </div>
+                <div class="fragment flow-box" style="width: 100%;">
+                    <h4>🎰 Gamificación</h4>
+                    <p>Ruleta de Nicknames en JavaScript puro con persistencia de identidad en base de datos.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3>🎅 Módulo Festivo</h3>
+            <p>Generación dinámica de activos.</p>
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
+                <p style="font-size: 0.8em;">Creamos un sistema que transfiere los datos (Nombre, Especie, Foto) a una <strong>nueva pestaña</strong> aislada para generar una postal imprimible.</p>
+                <div style="font-size: 0.6em; color: var(--neon-pink); margin-top: 10px;">
+                    Tecnología: Formulario POST oculto + CSS Print Media
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3>Impacto del Proyecto</h3>
+            <div style="display:flex; gap:20px; justify-content:center; align-items:stretch;">
+                <div class="fragment" style="background:rgba(0,229,255,0.1); padding:20px; border-radius:10px; width:45%;">
+                    <h4 style="color:var(--neon-yellow);">🔭 Monitorización</h4>
+                    <p style="font-size:0.7em;">Automatizar el censo de pingüinos permite a los científicos rastrear poblaciones sin intervenir físicamente en el hábitat.</p>
+                </div>
+                <div class="fragment" style="background:rgba(255,0,255,0.1); padding:20px; border-radius:10px; width:45%;">
+                    <h4 style="color:var(--neon-pink);">📉 Cambio Climático</h4>
+                    <p style="font-size:0.7em;">Los movimientos migratorios de los Adelie y Gentoo son bio-indicadores directos del calentamiento global en la Antártida.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h3>Siguientes Pasos (Roadmap)</h3>
+            <p class="sub-text">Evolución planificada del producto v2.0</p>
+            
+            <div style="text-align: left; margin-left: 10%; font-size: 0.8em;">
+                <div class="fragment" style="margin-bottom: 15px;">
+                    <span style="color:var(--neon-blue);">Phase 1:</span> 📱 <strong>App Móvil Offline</strong> para biólogos en campo sin internet.
+                </div>
+                <div class="fragment" style="margin-bottom: 15px;">
+                    <span style="color:var(--neon-blue);">Phase 2:</span> 🚁 <strong>Análisis de Video en Tiempo Real</strong> conectando la API a drones.
+                </div>
+                <div class="fragment">
+                    <span style="color:var(--neon-blue);">Phase 3:</span> 🐧 <strong>Expansión de Especies</strong> (Emperador y Macaroni) reentrenando el modelo ONNX.
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 style="color: var(--neon-yellow);">GRACIAS</h2>
+            <p>Hemos convertido un modelo de clasificación en una experiencia web completa.</p>
+            <div style="margin-top: 50px; font-size: 0.8em;">
+                Javier Hernández Pérez & Maria Parra Ramos
+            </div>
+            <br>
+            <a href="/" style="background: var(--neon-blue); color: #000; text-decoration: none; padding: 15px 30px; font-weight: bold; border-radius: 5px;">
+                🚀 VER DEMOSTRACIÓN
+            </a>
+        </section>
+
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+<script>
+    Reveal.initialize({
+        hash: true,
+        transition: 'cubic',
+        plugins: [ RevealHighlight ]
+    });
+</script>
+
+</body>
+</html>

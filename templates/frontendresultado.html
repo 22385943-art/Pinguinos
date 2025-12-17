@@ -2,224 +2,310 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<title>Resultado del Análisis</title>
+<title>Red Global de Rastreo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Orbitron:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Orbitron:wght@500;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap');
 
-body {
-    margin: 0; padding: 0;
-    font-family: 'Roboto Mono', monospace;
-    background: #0b1e2d;
-    color: #e0f7fa;
+/* --- RESET & BASE --- */
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; background: #050b14; color: #fff; overflow: hidden; height: 100vh; }
+
+/* --- UI LAYOUT --- */
+.app-container {
+    display: flex;
     height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+    width: 100vw;
 }
 
-/* Fondo con rejilla técnica */
-.grid-bg {
-    position: fixed; inset: 0;
-    background-image: 
-        linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 40px 40px;
-    z-index: -2;
-}
-
-/* Contenedor principal estilo "Tablet Científica" */
-.dashboard {
-    width: 90%; max-width: 1100px;
-    height: 80vh;
-    background: rgba(16, 38, 54, 0.85);
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    border-radius: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    overflow: hidden;
-    position: relative;
-}
-
-/* Decoraciones de esquina */
-.corner {
-    position: absolute; width: 20px; height: 20px;
-    border: 2px solid #00e5ff;
-}
-.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
-.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
-.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
-.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
-
-/* Columna Izquierda: DATOS */
-.left-panel {
-    padding: 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    border-right: 1px solid rgba(0, 255, 255, 0.1);
-}
-
-.label-scan {
-    color: #00e5ff;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    animation: blink 2s infinite;
-}
-
-h2 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    color: #fff;
-    text-shadow: 0 0 10px #00e5ff;
-}
-
-.data-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 20px;
-    background: rgba(0,0,0,0.3);
+/* --- SIDEBAR (Panel de Control) --- */
+.sidebar {
+    width: 400px; 
+    background: rgba(10, 20, 30, 0.95);
+    border-right: 1px solid #00e5ff;
     padding: 20px;
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 255, 0.2);
+    display: flex; flex-direction: column;
+    z-index: 1000;
+    box-shadow: 10px 0 50px rgba(0,0,0,0.5);
+    overflow-y: auto; 
 }
 
-.data-item {
-    display: flex;
-    flex-direction: column;
-}
-.data-item span:first-child {
-    font-size: 0.75rem; color: #81d4fa;
-}
-.data-item span:last-child {
-    font-size: 1.1rem; color: #fff; font-weight: bold;
-}
+.header { border-bottom: 1px solid rgba(0, 255, 255, 0.2); padding-bottom: 15px; margin-bottom: 15px; }
+h1 { font-family: 'Orbitron', sans-serif; color: #00e5ff; font-size: 1.5rem; margin: 0; text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
+.subtitle { color: #81d4fa; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; }
 
-.prediction-box {
-    margin-top: 30px;
-    padding: 15px;
+/* IMAGEN DEL PINGÜINO */
+.penguin-preview {
+    display: flex; align-items: center; gap: 15px;
     background: linear-gradient(90deg, rgba(0, 229, 255, 0.1), transparent);
-    border-left: 4px solid #00e5ff;
+    padding: 10px; border-radius: 10px; border: 1px solid rgba(0, 255, 255, 0.2);
+    margin-bottom: 20px;
+}
+.thumb-img {
+    width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+    border: 2px solid #fff;
+}
+.species-tag {
+    font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #ffeb3b;
+    text-shadow: 0 0 5px rgba(255, 235, 59, 0.5);
 }
 
-/* Columna Derecha: IMAGEN */
-.right-panel {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+/* --- FRASE PREDICTORA --- */
+.prediction-text-box {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.85rem;
+    color: #e0f7fa;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-left: 3px solid #00e5ff;
+    margin-bottom: 20px;
+    line-height: 1.4;
 }
 
-.frame {
-    width: 100%; height: 100%;
-    max-height: 400px;
-    border: 2px dashed rgba(0, 255, 255, 0.4);
-    padding: 10px;
-    position: relative;
-    border-radius: 10px;
-}
+/* GRID DE DATOS */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin-bottom: 20px; }
+.stat-box { background: rgba(0,229,255,0.05); padding: 8px; border-radius: 5px; border: 1px solid rgba(0, 255, 255, 0.1); }
+.stat-label { font-size: 0.7rem; color: #81d4fa; display: block; }
+.stat-val { font-size: 0.95rem; font-weight: bold; }
 
-.frame img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    border-radius: 5px;
-    filter: contrast(1.1) brightness(1.1);
+/* --- SECCIÓN RULETA --- */
+.roulette-section {
+    text-align: center;
+    border-top: 1px dashed rgba(0, 255, 255, 0.3);
+    padding-top: 20px;
+    margin-top: auto; 
+    margin-bottom: 15px;
 }
-
-.scan-line {
-    position: absolute; top: 0; left: 0;
-    width: 100%; height: 5px;
-    background: rgba(0, 255, 255, 0.8);
-    box-shadow: 0 0 10px #00e5ff;
-    animation: scan 3s infinite linear;
-    opacity: 0.6;
+.nickname-display {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    color: #fff;
+    min-height: 40px;
+    margin: 10px 0;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
+.btn-spin {
+    background: linear-gradient(45deg, #ff9800, #ff5722);
+    border: none; padding: 10px 30px; color: white;
+    font-family: 'Orbitron', sans-serif; font-weight: bold;
+    cursor: pointer; border-radius: 5px; transition: 0.3s;
+    box-shadow: 0 0 15px rgba(255, 87, 34, 0.4);
+}
+.btn-spin:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255, 87, 34, 0.8); }
+.btn-spin:disabled { background: #555; cursor: not-allowed; transform: none; }
 
-.btn-back {
-    margin-top: 20px;
-    text-decoration: none;
-    padding: 10px 30px;
-    border: 1px solid #00e5ff;
-    color: #00e5ff;
-    border-radius: 5px;
+/* --- BOTONES DE ACCIÓN --- */
+.btn-new {
+    display: block; text-align: center; text-decoration: none;
+    color: #00e5ff; border: 1px solid #00e5ff; padding: 10px;
+    border-radius: 5px; font-weight: bold; font-size: 0.8rem;
     transition: 0.3s;
-    text-transform: uppercase;
-    font-size: 0.8rem;
 }
-.btn-back:hover { background: rgba(0, 229, 255, 0.1); color: #fff; }
+.btn-new:hover { background: rgba(0, 229, 255, 0.1); color: #fff; }
 
-@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
-@keyframes scan { 0%{top:0;} 100%{top:100%;} }
+/* Nuevo Botón Navidad */
+.btn-xmas {
+    background: linear-gradient(90deg, #c62828, #b71c1c);
+    color: #ffeb3b;
+    border: 1px solid #ffeb3b;
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    text-shadow: 1px 1px 0 #000;
+    transition: transform 0.2s;
+    margin-bottom: 10px; /* Separación con el botón azul */
+}
+.btn-xmas:hover { transform: scale(1.05); }
 
+/* --- MAPA --- */
+.map-container { flex-grow: 1; position: relative; }
+#map { width: 100%; height: 100%; background: #020408; }
+
+/* MARCADORES MAPA */
+.custom-marker {
+    background: #000; border: 2px solid #fff; border-radius: 50%;
+    overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.8);
+    transition: transform 0.2s;
+}
+.custom-marker img { width: 100%; height: 100%; object-fit: cover; }
+.my-marker { border: 3px solid #ffeb3b; box-shadow: 0 0 20px #ffeb3b; z-index: 1000 !important; }
+
+/* POPUPS */
+.leaflet-popup-content-wrapper { background: rgba(10, 25, 40, 0.95); border: 1px solid #00e5ff; color: #fff; border-radius: 0; }
+.leaflet-popup-tip { background: rgba(10, 25, 40, 0.95); }
+.popup-content h3 { color: #ffeb3b; margin: 0 0 5px 0; font-family: 'Orbitron', sans-serif; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .app-container { flex-direction: column; }
+    .sidebar { width: 100%; height: 50%; border-right: none; border-bottom: 2px solid #00e5ff; }
+    .map-container { height: 50%; }
+}
 </style>
 </head>
 <body>
 
-<div class="grid-bg"></div>
+<div class="app-container">
+    <div class="sidebar">
+        <div class="header">
+            <h1>PENGUIN TRACKER</h1>
+            <div class="subtitle">ANÁLISIS COMPLETADO</div>
+        </div>
 
-<div class="dashboard">
-    <div class="corner tl"></div><div class="corner tr"></div>
-    <div class="corner bl"></div><div class="corner br"></div>
-
-    <div class="left-panel">
-        <div class="label-scan">● ANÁLISIS COMPLETADO</div>
-        
-        <h2>
-            {% if "ADELIE" in poema %} PINGÜINO ADELIE
-            {% elif "CHINSTRAP" in poema %} PINGÜINO BARBIJO
-            {% elif "GENTOO" in poema %} PINGÜINO PAPÚA
-            {% else %} ESPECIE DESCONOCIDA
-            {% endif %}
-        </h2>
-
-        <div class="data-grid">
-            <div class="data-item">
-                <span>LARGO PICO</span>
-                <span>{{ features.bill_length_mm }} mm</span>
-            </div>
-            <div class="data-item">
-                <span>PROF. PICO</span>
-                <span>{{ features.bill_depth_mm }} mm</span>
-            </div>
-            <div class="data-item">
-                <span>ALETA</span>
-                <span>{{ features.flipper_length_mm }} mm</span>
-            </div>
-            <div class="data-item">
-                <span>MASA</span>
-                <span>{{ features.body_mass_g }} g</span>
-            </div>
-            <div class="data-item">
-                <span>SEXO</span>
-                <span>{{ 'MACHO' if features.sex == 1 else 'HEMBRA' }}</span>
+        <div class="penguin-preview">
+            <img src="{{ img_url }}" class="thumb-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg'">
+            <div>
+                <div style="font-size:0.7rem; color:#81d4fa;">CLASE DETECTADA</div>
+                <div class="species-tag">{{ species }}</div>
             </div>
         </div>
 
-        <div class="prediction-box">
+        <div class="prediction-text-box">
             {{ poema }}
         </div>
 
-        <a href="/" class="btn-back">Nuevo Análisis</a>
+        <div class="stats-grid">
+            <div class="stat-box"><span class="stat-label">PICO LARGO</span><span class="stat-val">{{ features.get('bill_length_mm') }} mm</span></div>
+            <div class="stat-box"><span class="stat-label">PICO PROF</span><span class="stat-val">{{ features.get('bill_depth_mm') }} mm</span></div>
+            <div class="stat-box"><span class="stat-label">ALETA</span><span class="stat-val">{{ features.get('flipper_length_mm') }} mm</span></div>
+            <div class="stat-box"><span class="stat-label">MASA</span><span class="stat-val">{{ features.get('body_mass_g') }} g</span></div>
+        </div>
+
+        <div class="roulette-section">
+            <div style="font-size:0.7rem; color:#ffeb3b; margin-bottom:5px;">GENERAR IDENTIDAD SECRETA</div>
+            
+            <div id="nickname-display" class="nickname-display">--- ??? ---</div>
+            
+            <button id="spin-btn" class="btn-spin" onclick="spinRoulette()">🎲 GENERAR MOTE</button>
+        </div>
+
+        <form action="{{ url_for('navidad') }}" method="post" target="_blank">
+            <input type="hidden" name="nickname" value="{{ nickname }}">
+            <input type="hidden" name="species" value="{{ species }}">
+            <input type="hidden" name="img_url" value="{{ img_url }}">
+            <button type="submit" class="btn-xmas">🎅 GENERAR TARJETA NAVIDEÑA</button>
+        </form>
+
+        <a href="/" class="btn-new">ANALIZAR NUEVO SUJETO</a>
     </div>
 
-    <div class="right-panel">
-        <div class="frame">
-            <div class="scan-line"></div>
-            <img src="{{ img_url }}" alt="Pingüino analizado" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg'">
-        </div>
-        <div style="margin-top:10px; font-size:0.7rem; color:#81d4fa;">
-            ID DE MUESTRA: {{ range(1000, 9999) | random }}
-        </div>
+    <div class="map-container">
+        <div id="map"></div>
     </div>
 </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // --- VARIABLES DE PYTHON ---
+    const finalNickname = "{{ nickname }}"; 
+    const myLat = {{ my_lat }};
+    const myLon = {{ my_lon }};
+    const myImg = "{{ img_url }}";
+    const mySpecies = "{{ species }}";
+
+    // --- 1. LÓGICA DE LA RULETA ---
+    const randomNames = ["Kowalski", "Tornado", "Yeti", "Flipper", "Pingu", "Iceberg", "Snowball", "Boss", "Frosty", "Mr. X"];
+    
+    function spinRoulette() {
+        const display = document.getElementById('nickname-display');
+        const btn = document.getElementById('spin-btn');
+        
+        btn.disabled = true;
+        btn.innerText = "CALCULANDO...";
+        
+        let counter = 0;
+        const spins = 20;
+        
+        let interval = setInterval(() => {
+            display.innerText = randomNames[Math.floor(Math.random() * randomNames.length)];
+            display.style.color = "#fff";
+            counter++;
+
+            if (counter >= spins) {
+                clearInterval(interval);
+                display.innerText = "✨ " + finalNickname.toUpperCase() + " ✨";
+                display.style.color = "#ffeb3b";
+                display.style.textShadow = "0 0 20px #ffeb3b";
+                
+                btn.innerText = "IDENTIDAD CONFIRMADA";
+                updateMyMarkerPopup();
+            }
+        }, 80);
+    }
+
+    // --- 2. MAPA ---
+    var map = L.map('map', { zoomControl: false }).setView([-70, 0], 3);
+    
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Esri, NASA'
+    }).addTo(map);
+    
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    function createIcon(imageUrl, isMine) {
+        const cssClass = isMine ? 'custom-marker my-marker' : 'custom-marker';
+        return L.divIcon({
+            className: 'custom-icon-container',
+            html: `<div class="${cssClass}" style="width: 40px; height: 40px;">
+                     <img src="${imageUrl}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg'">
+                   </div>`,
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20]
+        });
+    }
+
+    let myMarker = null;
+
+    fetch('/api/community')
+        .then(response => response.json())
+        .then(penguins => {
+            penguins.forEach(p => {
+                if (p.coords && p.coords.lat) {
+                    const icon = createIcon(p.img_url, false);
+                    const popupContent = `
+                        <div style="text-align:center;">
+                            <h3 style="margin:0; color:#ffeb3b">${p.nickname}</h3>
+                            <img src="${p.img_url}" style="width:100px; border-radius:5px; margin:5px 0;">
+                            <div>${p.species}</div>
+                        </div>`;
+                    
+                    L.marker([p.coords.lat, p.coords.lon], {icon: icon})
+                     .addTo(map)
+                     .bindPopup(popupContent);
+                }
+            });
+
+            const myIcon = createIcon(myImg, true);
+            myMarker = L.marker([myLat, myLon], {icon: myIcon, zIndexOffset: 1000}).addTo(map);
+            myMarker.bindPopup(`<div style="text-align:center; font-weight:bold;">¡TU PINGÜINO!<br>Gira la ruleta para ver nombre</div>`).openPopup();
+
+            setTimeout(() => {
+                map.flyTo([myLat, myLon], 5, { duration: 2.5 });
+            }, 1000);
+        });
+
+    function updateMyMarkerPopup() {
+        if(myMarker) {
+            myMarker.setPopupContent(`
+                <div style="text-align:center;">
+                    <h3 style="margin:0; color:#ffeb3b">✨ ${finalNickname} ✨</h3>
+                    <img src="${myImg}" style="width:120px; border-radius:5px; margin:5px 0;">
+                    <div style="color:#00e5ff; font-weight:bold;">${mySpecies}</div>
+                    <div style="font-size:0.8rem;">UBICACIÓN CONFIRMADA</div>
+                </div>
+            `);
+            myMarker.openPopup();
+        }
+    }
+</script>
 
 </body>
 </html>
